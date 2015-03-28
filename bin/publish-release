@@ -1,0 +1,177 @@
+#!/usr/bin/env node
+
+var publishRelease = require('../')
+var _ = require('lodash')
+var ghauth = require('ghauth')
+var strEditor = require('string-editor')
+var argv = require('minimist')(process.argv.slice(2))
+var inquirer = require('inquirer')
+var pkginfo = require('pkginfo')
+var gh = require('github-url-to-object')
+var log = require('single-line-log').stdout;
+var prettyBytes = require('pretty-bytes')
+var releasePkg = require('../package.json')
+var path = require('path')
+var fs = require('fs')
+var exec = require('child_process').exec
+
+if (argv.help) {
+  return fs.createReadStream(__dirname + '/help.txt')
+      .pipe(process.stdout)
+      .on('close', function () { process.exit(1) })
+}
+
+var pkg = pkginfo.read(null, process.cwd()).package
+var opts = _.extend({
+  token: null,
+  owner: null,
+  repo: null,
+  tag: null,
+  name: null,
+  notes: null,
+  template: false,
+  draft: false,
+  prerelease: false,
+  assets: []
+}, argv, pkg.publishRelease)
+
+function whenFilter (key) {
+  return function () {
+    return (opts[key] === null)
+  }
+}
+function getGitInfo (key) {
+  return function () {
+    if (pkg.repository && pkg.repository.url) {
+      var info = gh(pkg.repository.url)
+      if (!info) return null
+      return info[key]
+    } else {
+      return null
+    }
+  }
+}
+var inq = [
+  {
+    type: 'rawlist',
+    name: 'tag',
+    message: 'Git Tag',
+    choices: function () {
+      var done = this.async()
+      
+      exec('git tag', function (err, stdout) {
+        if (err) throw err
+
+        if (stdout === '') {
+          console.error('There are no git tags in this project. A tag is required to create a release.')
+          process.exit(1)
+        } else {
+          var tags = stdout.split('\n').filter(function (tag) { return tag !== '' }).reverse()
+          done(tags)
+        }
+      })
+    },
+    when: whenFilter('tag')
+  },
+  {
+    type: 'input',
+    name: 'owner',
+    message: 'Github repository owner',
+    default: getGitInfo('user'),
+    when: whenFilter('owner')
+  },
+  {
+    type: 'input',
+    name: 'repo',
+    message: 'Github repository name',
+    default: getGitInfo('repo'),
+    when: whenFilter('repo')
+  },
+  {
+    type: 'input',
+    name: 'name',
+    message: 'Release Name',
+    default: function (ans) {
+      return pkg.name + ' ' + (opts.tag || ans.tag)
+    },
+    when: whenFilter('name')
+  }
+]
+
+var authOptions = {
+  configName: 'publish-release',
+  scopes: ['repo', 'public_repo'],
+  note: 'Auth token for publishing releases via publish-release',
+  userAgent: 'publish-release ' + releasePkg.version + ' (https://github.com/remixz/publish-release)'
+}
+
+function auth (cb) {
+  if (!opts.token) {
+    ghauth(authOptions, function (err, data) {
+      if (err) return cb(err)
+      opts.token = data.token
+      cb()
+    })
+  } else {
+    cb()
+  }
+}
+
+function editor (cb) {
+  if (!opts.notes) {
+    var notes = 'Replace with release notes'
+    if (opts.template) {
+      notes = fs.readFileSync(path.resolve(process.cwd(), opts.template))
+    }
+    strEditor(notes, 'notes.md', function (err, str) {
+      if (err) return cb(err)
+      opts.notes = str
+      cb()
+    })
+  } else {
+    cb()
+  }
+}
+
+function render (name, prog) {
+  var pct = prog.percentage
+  var speed = prettyBytes(prog.speed)
+  var bar = Array(Math.floor(50 * pct / 100)).join('=')+'>'
+  while (bar.length < 50) bar += ' '
+
+  log(
+    '\nUploading ' + name + '\n' +
+    '[' + bar + '] '+ pct.toFixed(1) + '% (' + speed + '/s)\n'
+  )
+}
+
+auth(function didAuth (err) {
+  if (err) throw err
+
+  inquirer.prompt(inq, function didPrompt (ans) {
+    opts = _.extend(opts, ans)
+
+    editor(function editedNotes (err, str) {
+      if (err) throw err
+
+      if (typeof opts.assets === 'string') {
+        opts.assets = opts.assets.split(',')
+      }
+      opts.assets = opts.assets.map(function (asset) {
+        return path.resolve(process.cwd(), asset)
+      })
+
+      var pub = publishRelease(opts, function publishedRelease (err, release) {
+        if (err) throw err
+
+        console.log('Done! Published at: ' + release.html_url)
+        process.exit(0)
+      })
+
+      pub.on('upload-progress', render)
+      pub.on('uploaded-asset', function finishedAsset () {
+        log.clear()
+      })
+    })
+  })
+})

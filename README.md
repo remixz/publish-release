@@ -1,0 +1,80 @@
+## publish-release
+
+Create GitHub releases with assets from CLI, or from JS
+
+### Installation
+
+```
+npm install --save publish-release
+npm install -g publish-release # CLI
+```
+
+### CLI Usage
+
+The CLI looks in 2 places for configuration: arguments passed, and a `publishRelease` object (see the [API usage](#api-usage) below for the format) in the `package.json`. If it can't find the info it needs from those places, it will run a wizard. This means that you can create a release just by running `publish-release`, and following the wizard. 
+
+```
+$ publish-release --help
+Usage: publish-release {options}
+
+Options:
+
+  --token [token]                 GitHub oAuth token.
+
+  --owner [owner]                 GitHub owner of the repository.
+                                  Defaults to parsing repository field in 
+                                  the project's package.json
+
+  --repo [repo]                   GitHub repository name.
+                                  Defaults to parsing repository field in 
+                                  the project's package.json
+
+  --tag [tag]                     Git tag to base the release off of.
+                                  Defaults to latest tag.
+
+  --name [name]                   Name of the new release.
+                                  Defaults to the name field in the
+                                  package.json, plus the git tag.
+
+  --notes [notes]                 Notes to add to release, written in Markdown.
+                                  Defaults to opening the $EDITOR.
+
+  --template [path to template]   Markdown file to open for editing notes.
+                                  Will open the template in $EDITOR.
+
+  --draft                         Pass this flag to set the release as a draft.
+
+  --prerelease                    Pass this flag to set the release as a 
+                                  prerelease.
+
+  --assets [files]                Comma-separated list of filenames.
+                                  Ex: --assets foo.txt,bar.zip
+```
+
+### API Usage
+
+Using it from the API will not inherit any configuration properties from other sources (i.e. the package.json), and requires you to pass all properties in yourself.
+
+```js
+var publishRelease = require('publish-release')
+
+publishRelease({
+  token: 'token',
+  owner: 'remixz',
+  repo: 'publish-release',
+  tag: 'v1.0.0',
+  name: 'publish-release v1.0.0',
+  notes: 'very good!',
+  draft: false,
+  prerelease: false,
+  assets: ['/absolute/path/to/file']
+})
+```
+
+`publish-release` emits the following events on the API:
+
+* `create-release` - Emits before the request is made to create the release.
+* `created-release` - Emits after the request is made successfully.
+* `upload-asset` - `{name}` - Emits before an asset file starts uploading. Emits the `name` of the file.
+* `upload-progress` - `{name, progress}` - Emits while a file is uploading. Emits the `name` of the file, and a `progress` object from [`progress-stream`](https://github.com/freeall/progress-stream).
+* `uploaded-asset` - `{name}` - Emits after an asset file is successfully uploaded. Emits the `name` of the file.
