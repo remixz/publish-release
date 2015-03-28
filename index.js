@@ -8,7 +8,7 @@
 var request = require('request')
 var async = require('async')
 var mime = require('mime')
-var progress = require('progress-stream');
+var progress = require('progress-stream')
 var util = require('util')
 var fs = require('fs')
 var path = require('path')
@@ -77,7 +77,7 @@ PublishRelease.prototype.publish = function publish () {
         var uploadUri = obj.createRelease.upload_url.split('{')[0] + '?name=' + fileName
         self.emit('upload-asset', fileName)
 
-        var stat = fs.statSync(asset);
+        var stat = fs.statSync(asset)
         var rd = fs.createReadStream(asset)
         var us = request({
           method: 'POST',
@@ -95,12 +95,12 @@ PublishRelease.prototype.publish = function publish () {
             time: 100
         }, function (p) {
           self.emit('upload-progress', fileName, p)
-        });
+        })
 
-        rd.on('error', function () {
+        rd.on('error', function (err) {
           callback(err)
         })
-        us.on('error', function () {
+        us.on('error', function (err) {
           callback(err)
         })
 
