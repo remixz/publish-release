@@ -1,8 +1,15 @@
 ## publish-release
 
-Create GitHub releases with assets from CLI, or from JS
+
+Create GitHub releases with assets from CLI, or from JS.
+
+[![Build Status](https://travis-ci.org/remixz/publish-release.svg?branch=master)](https://travis-ci.org/remixz/publish-release)
+
+[![js-standard-style](https://raw.githubusercontent.com/feross/standard/master/badge.png)](https://github.com/feross/standard)
 
 ### Installation
+
+[![NPM](https://nodei.co/npm/publish-release.png)](https://nodei.co/npm/publish-release/)
 
 ```
 npm install --save publish-release
