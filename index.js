@@ -56,7 +56,7 @@ PublishRelease.prototype.publish = function publish () {
           name: opts.name,
           body: opts.notes,
           draft: !!opts.draft,
-          prerelease: !!opts.draft
+          prerelease: !!opts.prerelease
         },
         headers: {
           'Authorization': 'token ' + opts.token,
