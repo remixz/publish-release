@@ -1,6 +1,6 @@
 {
   "name": "publish-release",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Create GitHub releases with assets",
   "main": "index.js",
   "bin": "bin/publish-release",
