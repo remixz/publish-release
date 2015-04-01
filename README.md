@@ -75,6 +75,8 @@ publishRelease({
   draft: false,
   prerelease: false,
   assets: ['/absolute/path/to/file']
+}, function (err, release) {
+  // `release`: object returned from github about the newly created release
 })
 ```
 
