@@ -15,7 +15,7 @@ var path = require('path')
 var EventEmitter = require('events').EventEmitter
 var pkg = require('./package.json')
 
-var API_ROOT = 'https://api.github.com'
+var DEFAULT_API_ROOT = 'https://api.github.com'
 
 function PublishRelease (opts, cb) {
   if (!(this instanceof PublishRelease)) return new PublishRelease(opts, cb)
@@ -48,7 +48,7 @@ PublishRelease.prototype.publish = function publish () {
     createRelease: function createRelease (callback) {
       self.emit('create-release')
       request({
-        uri: util.format(API_ROOT + '/repos/%s/%s/releases', opts.owner, opts.repo),
+        uri: util.format((opts.apiUrl || DEFAULT_API_ROOT) + '/repos/%s/%s/releases', opts.owner, opts.repo),
         method: 'POST',
         json: true,
         body: {

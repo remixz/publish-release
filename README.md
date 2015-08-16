@@ -56,6 +56,10 @@ Options:
 
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
+
+  --apiUrl [apiurl]               Use a custom API URL to connect to GitHub Enterprise instead of github.com.
+                                  Defaults to "https://api.github.com"
+                                  Ex: --apiUrl "https://myGHEserver/api/v3"
 ```
 
 ### API Usage
@@ -74,7 +78,8 @@ publishRelease({
   notes: 'very good!',
   draft: false,
   prerelease: false,
-  assets: ['/absolute/path/to/file']
+  assets: ['/absolute/path/to/file'],
+  apiUrl: 'https://myGHEserver/api/v3'
 }, function (err, release) {
   // `release`: object returned from github about the newly created release
 })
