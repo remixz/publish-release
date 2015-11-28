@@ -71,7 +71,7 @@ PublishRelease.prototype.publish = function publish () {
 
     uploadAssets: ['createRelease', function uploadAssets (callback, obj) {
       if (!opts.assets || opts.assets.length === 0) return callback()
-      if (obj.createRelease.errors) return callback(obj.createRelease)
+      if (obj.createRelease.errors || !obj.createRelease.upload_url) return callback(obj.createRelease)
 
       async.eachSeries(opts.assets, function (asset, callback) {
         var fileName = path.basename(asset)
