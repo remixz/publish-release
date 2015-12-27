@@ -32,6 +32,7 @@ var opts = _.extend({
   template: false,
   draft: false,
   prerelease: false,
+  reuseRelease: false,
   assets: []
 }, argv, pkg.publishRelease)
 
@@ -58,7 +59,7 @@ var inq = [
     message: 'Git Tag',
     choices: function () {
       var done = this.async()
-      
+
       exec('git tag', function (err, stdout) {
         if (err) throw err
 

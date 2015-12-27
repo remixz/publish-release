@@ -46,27 +46,53 @@ PublishRelease.prototype.publish = function publish () {
 
   async.auto({
     createRelease: function createRelease (callback) {
-      self.emit('create-release')
-      request({
-        uri: util.format((opts.apiUrl || DEFAULT_API_ROOT) + '/repos/%s/%s/releases', opts.owner, opts.repo),
-        method: 'POST',
-        json: true,
-        body: {
-          tag_name: opts.tag,
-          name: opts.name,
-          body: opts.notes,
-          draft: !!opts.draft,
-          prerelease: !!opts.prerelease
-        },
-        headers: {
-          'Authorization': 'token ' + opts.token,
-          'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
-        }
-      }, function (err, res, body) {
-        if (err) return callback(err)
-        self.emit('created-release')
-        callback(null, body)
-      })
+      var ghReleaseUri = util.format((opts.apiUrl || DEFAULT_API_ROOT) + '/repos/%s/%s/releases', opts.owner, opts.repo)
+
+      function requestCreateRelease () {
+        self.emit('create-release')
+        request({
+          uri: ghReleaseUri,
+          method: 'POST',
+          json: true,
+          body: {
+            tag_name: opts.tag,
+            name: opts.name,
+            body: opts.notes,
+            draft: !!opts.draft,
+            prerelease: !!opts.prerelease
+          },
+          headers: {
+            'Authorization': 'token ' + opts.token,
+            'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+          }
+        }, function (err, res, body) {
+          if (err) return callback(err)
+          self.emit('created-release')
+          callback(null, body)
+        })
+      }
+
+      if (opts.reuseRelease) {
+        request({
+          uri: ghReleaseUri,
+          method: 'GET',
+          json: true,
+          headers: {
+            'Authorization': 'token ' + opts.token,
+            'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+          }
+        }, function (err, res, body) {
+          if (err) return callback(err)
+          if (body[0]) {
+            self.emit('reuse-release')
+            callback(null, body[0])
+          } else {
+            requestCreateRelease()
+          }
+        })
+      } else {
+        requestCreateRelease()
+      }
     },
 
     uploadAssets: ['createRelease', function uploadAssets (callback, obj) {

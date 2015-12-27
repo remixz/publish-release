@@ -18,7 +18,7 @@ npm install -g publish-release # CLI
 
 ### CLI Usage
 
-The CLI looks in 2 places for configuration: arguments passed, and a `publishRelease` object (see the [API usage](#api-usage) below for the format) in the `package.json`. If it can't find the info it needs from those places, it will run a wizard. This means that you can create a release just by running `publish-release`, and following the wizard. 
+The CLI looks in 2 places for configuration: arguments passed, and a `publishRelease` object (see the [API usage](#api-usage) below for the format) in the `package.json`. If it can't find the info it needs from those places, it will run a wizard. This means that you can create a release just by running `publish-release`, and following the wizard.
 
 ```
 $ publish-release --help
@@ -29,11 +29,11 @@ Options:
   --token [token]                 GitHub oAuth token.
 
   --owner [owner]                 GitHub owner of the repository.
-                                  Defaults to parsing repository field in 
+                                  Defaults to parsing repository field in
                                   the project's package.json
 
   --repo [repo]                   GitHub repository name.
-                                  Defaults to parsing repository field in 
+                                  Defaults to parsing repository field in
                                   the project's package.json
 
   --tag [tag]                     Git tag to base the release off of.
@@ -51,8 +51,11 @@ Options:
 
   --draft                         Pass this flag to set the release as a draft.
 
-  --prerelease                    Pass this flag to set the release as a 
+  --prerelease                    Pass this flag to set the release as a
                                   prerelease.
+
+  --reuseRelease                  Pass this flag if you don't want the plugin to create a new release if one already
+                                  exists for the given tag.
 
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
@@ -78,6 +81,7 @@ publishRelease({
   notes: 'very good!',
   draft: false,
   prerelease: false,
+  reuseRelease: true,
   assets: ['/absolute/path/to/file'],
   apiUrl: 'https://myGHEserver/api/v3'
 }, function (err, release) {
@@ -89,6 +93,7 @@ publishRelease({
 
 * `create-release` - Emits before the request is made to create the release.
 * `created-release` - Emits after the request is made successfully.
+* `reuse-release` - Emits if, instead of creating a new release, the assets will be uploaded to an existing one (if one can be found for the given tag).
 * `upload-asset` - `{name}` - Emits before an asset file starts uploading. Emits the `name` of the file.
 * `upload-progress` - `{name, progress}` - Emits while a file is uploading. Emits the `name` of the file, and a `progress` object from [`progress-stream`](https://github.com/freeall/progress-stream).
 * `uploaded-asset` - `{name}` - Emits after an asset file is successfully uploaded. Emits the `name` of the file.
