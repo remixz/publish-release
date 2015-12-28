@@ -5,11 +5,11 @@ Options:
   --token [token]                 GitHub oAuth token.
 
   --owner [owner]                 GitHub owner of the repository.
-                                  Defaults to parsing repository field in 
+                                  Defaults to parsing repository field in
                                   the project's package.json
 
   --repo [repo]                   GitHub repository name.
-                                  Defaults to parsing repository field in 
+                                  Defaults to parsing repository field in
                                   the project's package.json
 
   --tag [tag]                     Git tag to base the release off of.
@@ -27,8 +27,11 @@ Options:
 
   --draft                         Pass this flag to set the release as a draft.
 
-  --prerelease                    Pass this flag to set the release as a 
+  --prerelease                    Pass this flag to set the release as a
                                   prerelease.
+
+  --reuseRelease                  Pass this flag if you don't want the plugin to create a new release if one already
+                                  exists for the given tag.
 
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
