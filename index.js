@@ -63,7 +63,7 @@ PublishRelease.prototype.publish = function publish () {
           'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
         }
       }, function (err, res, body) {
-        if (err) return callback(err)
+        if (err || body.errors) return callback(err || body.errors)
         self.emit('created-release')
         callback(null, body)
       })
