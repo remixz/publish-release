@@ -57,6 +57,9 @@ Options:
   --reuseRelease                  Pass this flag if you don't want the plugin to create a new release if one already
                                   exists for the given tag.
 
+  --reuseDraftOnly                Pass this flag if you only want to reuse a release if it's a draft. It prevents
+                                  you from editing already published releases.
+
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
 
@@ -82,6 +85,7 @@ publishRelease({
   draft: false,
   prerelease: false,
   reuseRelease: true,
+  reuseDraftOnly: true,
   assets: ['/absolute/path/to/file'],
   apiUrl: 'https://myGHEserver/api/v3'
 }, function (err, release) {
