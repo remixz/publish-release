@@ -46,7 +46,7 @@ function PublishRelease (opts, cb) {
 
   async.detect(assets, fs.exists, function(result)
   {
-    if(result) return callback(result)
+    if(result) return cb(result)
 
     // Create release
     var headers =
@@ -71,12 +71,12 @@ function PublishRelease (opts, cb) {
       headers: headers
     },
     function (err, res, obj) {
-      if (err) return callback(err)
+      if (err) return cb(err)
 
       emitter.emit('created-release')
 
       // Upload assets
-      if (!assets.length) return callback()
+      if (!assets.length) return cb()
 
       async.eachSeries(assets, function (asset, callback) {
         var fileName = path.basename(asset)
@@ -113,7 +113,8 @@ function PublishRelease (opts, cb) {
         })
 
         rd.pipe(prog).pipe(us)
-      })
+      },
+      cb)
     })
   })
 
