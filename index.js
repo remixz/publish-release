@@ -44,8 +44,9 @@ function PublishRelease (opts, cb) {
   // Validate assets
   var assets = opts.assets || []
 
-  async.detect(assets, fs.exists, function(result)
+  async.detect(assets, fs.exists, function(error, result)
   {
+    if(error)  return cb(error)
     if(result) return cb(result)
 
     // Create release
