@@ -44,10 +44,10 @@ function PublishRelease (opts, cb) {
   // Validate assets
   var assets = opts.assets || []
 
-  async.detect(assets, fs.exists, function(error, result)
+  async.every(assets, fs.exists, function(error, result)
   {
-    if(error)  return cb(error)
-    if(result) return cb(result)
+    if(error) return cb(error)
+    if(!result) return cb(new Error('There are some missing assets'))
 
     // Create release
     var headers =
