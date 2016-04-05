@@ -113,6 +113,7 @@ function PublishRelease (opts, cb) {
         })
 
         rd.pipe(prog).pipe(us)
+      })
     })
   })
 
