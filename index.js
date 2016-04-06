@@ -44,9 +44,8 @@ function PublishRelease (opts, cb) {
   // Validate assets
   var assets = opts.assets || []
 
-  async.every(assets, fs.exists, function(error, result)
+  async.every(assets, fs.exists, function(result)
   {
-    if(error) return cb(error)
     if(!result) return cb(new Error('There are some missing assets'))
 
     // Create release
@@ -59,7 +58,7 @@ function PublishRelease (opts, cb) {
     emitter.emit('create-release')
 
     request({
-      uri: util.format((opts.apiUrl || DEFAULT_API_ROOT) + '/repos/%s/%s/releases', opts.owner, opts.repo),
+      uri: (opts.apiUrl || DEFAULT_API_ROOT) + '/repos/'+opts.owner+'/'+opts.repo+'/releases',
       method: 'POST',
       json: true,
       body: {
@@ -95,7 +94,7 @@ function PublishRelease (opts, cb) {
         var us = request(
         {
           method: 'POST',
-          uri: obj.createRelease.upload_url.split('{')[0] + '?name=' + fileName,
+          uri: obj.upload_url.split('{')[0] + '?name=' + fileName,
           headers: headers
         })
         .on('error', callback)
