@@ -56,6 +56,7 @@ PublishRelease.prototype.publish = function publish () {
           json: true,
           body: {
             tag_name: opts.tag,
+            target_commitish: opts.target_commitish,
             name: opts.name,
             body: opts.notes,
             draft: !!opts.draft,
