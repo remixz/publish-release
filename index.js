@@ -83,7 +83,12 @@ PublishRelease.prototype.publish = function publish () {
           }
         }, function (err, res, body) {
           if (err) return callback(err)
-          if (res.statusCode >= 200 && res.statusCode < 300 && body[0] && body[0].tag_name === opts.tag) {
+
+          var statusOk = res.statusCode >= 200 && res.statusCode < 300
+          var bodyOk = body[0] && body[0].tag_name === opts.tag
+          var canReuse = !opts.reuseDraftOnly || (body[0] && body[0].draft)
+
+          if (statusOk && bodyOk && canReuse) {
             self.emit('reuse-release')
             callback(null, body[0])
           } else {
