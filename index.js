@@ -44,6 +44,17 @@ PublishRelease.prototype.publish = function publish () {
     return cb(new Error('missing required options: ' + missing.join(', ')))
   }
 
+  // check for existence of all assets
+  if (opts.assets && opts.assets.length > 0) {
+    try {
+      opts.assets.forEach(function (f) {
+        fs.accessSync(path.resolve(f))
+      })
+    } catch (err) {
+      cb(new Error('missing asset ' + err.path))
+    }
+  }
+
   async.auto({
     createRelease: function createRelease (callback) {
       var ghReleaseUri = util.format((opts.apiUrl || DEFAULT_API_ROOT) + '/repos/%s/%s/releases', opts.owner, opts.repo)
