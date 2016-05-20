@@ -34,6 +34,8 @@ Options:
                                   to create a new release if one already exists
                                   for the given tag.
 
+  --skipAssetChecks               Don't check if assets exist or not. False by default.
+
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
 

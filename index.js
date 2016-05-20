@@ -44,8 +44,7 @@ PublishRelease.prototype.publish = function publish () {
     return cb(new Error('missing required options: ' + missing.join(', ')))
   }
 
-  // check for existence of all assets
-  if (opts.assets && opts.assets.length > 0) {
+  if (!opts.skipAssetsCheck && opts.assets && opts.assets.length > 0) {
     try {
       opts.assets.forEach(function (f) {
         fs.accessSync(path.resolve(f))

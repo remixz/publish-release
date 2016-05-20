@@ -33,6 +33,7 @@ var opts = _.extend({
   draft: false,
   prerelease: false,
   reuseRelease: false,
+  skipAssetsCheck: false,
   assets: []
 }, argv, pkg.publishRelease)
 
@@ -146,21 +147,36 @@ function render (name, prog) {
   )
 }
 
-auth(function didAuth (err) {
-  if (err) throw err
+inquirer.prompt(inq, function didPrompt (ans) {
+  opts = _.extend(opts, ans)
 
-  inquirer.prompt(inq, function didPrompt (ans) {
-    opts = _.extend(opts, ans)
+  editor(function editedNotes (err, str) {
+    if (err) throw err
 
-    editor(function editedNotes (err, str) {
-      if (err) throw err
+    if (typeof opts.assets === 'string') {
+      opts.assets = opts.assets.split(',')
+    }
+    opts.assets = opts.assets.map(function (asset) {
+      return path.resolve(process.cwd(), asset)
+    })
 
-      if (typeof opts.assets === 'string') {
-        opts.assets = opts.assets.split(',')
+    if (!opts.skipAssetsCheck) {
+      // check for existence of all assets
+      if (opts.assets && opts.assets.length > 0) {
+        try {
+          opts.assets.forEach(function (f) {
+            fs.accessSync(path.resolve(f))
+          })
+        } catch (err) {
+          throw new Error('asset not found ' + err.path)
+        }
       }
-      opts.assets = opts.assets.map(function (asset) {
-        return path.resolve(process.cwd(), asset)
-      })
+
+      opts.skipAssetsCheck = true;
+    }
+
+    auth(function didAuth (err) {
+      if (err) throw err
 
       var pub = publishRelease(opts, function publishedRelease (err, release) {
         if (err) throw err

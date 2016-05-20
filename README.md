@@ -60,6 +60,8 @@ Options:
   --reuseDraftOnly                Pass this flag if you only want to reuse a release if it's a draft. It prevents
                                   you from editing already published releases.
 
+  --skipAssetChecks               Don't check if assets exist or not. False by default.
+
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
 
