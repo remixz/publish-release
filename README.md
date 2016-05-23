@@ -63,6 +63,7 @@ Options:
   --apiUrl [apiurl]               Use a custom API URL to connect to GitHub Enterprise instead of github.com.
                                   Defaults to "https://api.github.com"
                                   Ex: --apiUrl "https://myGHEserver/api/v3"
+
   --target_commitish [commitish]  Specifies the commitish value that determines where the Git tag is created from. Can be any branch or commit SHA.
                                   Defaults to the default branch of the repository.
                                   Ex: --target_commitish "master"
