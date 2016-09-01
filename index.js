@@ -60,7 +60,7 @@ PublishRelease.prototype.publish = function publish () {
 
       function requestCreateRelease () {
         self.emit('create-release')
-        request({
+        var reqDetails = {
           uri: ghReleaseUri,
           method: 'POST',
           json: true,
@@ -76,8 +76,20 @@ PublishRelease.prototype.publish = function publish () {
             'Authorization': 'token ' + opts.token,
             'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
           }
-        }, function (err, res, body) {
-          if (err) return callback(err)
+        };
+        request(reqDetails, function (err, res, body) {
+          if (err) {
+            // handle a real error, eg network fail
+            //will be handled by asyncAutoCallback
+            return callback(err)
+          }
+          var errorStatus = res.statusCode >= 400 && res.statusCode < 600
+          if(errorStatus) {
+            // handle an http error status
+            //will be handled by asyncAutoCallback
+            var e = new Error("Error status: "+ res.statusCode + "  response body:"+ JSON.stringify(body) + "\n request details:" + JSON.stringify(reqDetails, null, 2))
+            return callback(e);
+          }
           self.emit('created-release')
           callback(null, body)
         })
@@ -93,7 +105,7 @@ PublishRelease.prototype.publish = function publish () {
             'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
           }
         }, function (err, res, body) {
-          if (err) return callback(err)
+          if (err) return callback(err) //will be handled by asyncAutoCallback
 
           var statusOk = res.statusCode >= 200 && res.statusCode < 300
           var bodyOk = body[0] && body[0].tag_name === opts.tag
@@ -141,10 +153,10 @@ PublishRelease.prototype.publish = function publish () {
         })
 
         rd.on('error', function (err) {
-          callback(err)
+          return callback(err)  //will be handled by asyncAutoCallback
         })
         us.on('error', function (err) {
-          callback(err)
+          return callback(err)  //will be handled by asyncAutoCallback
         })
 
         us.on('end', function () {
@@ -154,11 +166,19 @@ PublishRelease.prototype.publish = function publish () {
 
         rd.pipe(prog).pipe(us)
       }, function (err) {
-        callback(err)
+        return callback(err); //will be handled by asyncAutoCallback
       })
     }]
-  }, function (err, obj) {
-    if (err) return cb(err)
+  }, function asyncAutoCallback (err, obj) {
+    if (err) {
+      //we are an EventEmitter so emit the 'error' event so the caller knows we failed.
+      self.emit('error', err);
+      // just run the callback with no info. dont run cb(err) beacuse as an EventEmitter this creates a
+      // throw Error('Uncaught, unspecified "error" event.')
+      // and that error message isn't helpful to anyone
+      return cb();
+    }
+    //otherwise
     cb(null, obj.createRelease)
   })
 }
