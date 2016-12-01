@@ -171,6 +171,8 @@ PublishRelease.prototype.publish = function publish () {
     }]
   }, function asyncAutoCallback (err, obj) {
     if (err) {
+      // make sure we do not leak the Github auth token
+      err.message = err.message.replace(new RegExp(opts.token, 'g'), '****');
       // we are an EventEmitter so emit the 'error' event so the caller knows we failed.
       self.emit('error', err)
       // just run the callback with no info. dont run cb(err) beacuse as an EventEmitter this creates a
