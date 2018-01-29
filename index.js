@@ -143,6 +143,29 @@ PublishRelease.prototype.publish = function publish () {
             'Content-Length': stat.size,
             'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
           }
+        }, function (err, res, body) {
+          const bodyJson = JSON.parse(body)
+          if (res.statusCode === 422 && bodyJson.errors && bodyJson.errors[0].code === "already_exists") {
+            self.emit('duplicated-asset', fileName)
+
+            obj.createRelease.assets.forEach((el) => {
+              if (fileName === el.name) {
+                const deleteAssetUri = obj.createRelease.url.split('/').slice(0,-1).join('/') + '/assets/' + el.id
+
+                request({
+                  method: 'DELETE',
+                  uri: deleteAssetUri,
+                  headers: {
+                    'Authorization': 'token ' + opts.token,
+                    'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+                  }
+                }, function (err, res, body) {
+                  if (err) return callback(err)
+                  self.emit('duplicated-asset-deleted', fileName)
+                })
+              }
+            })
+          }
         })
 
         var prog = progress({

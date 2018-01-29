@@ -108,6 +108,8 @@ publishRelease({
 * `upload-asset` - `{name}` - Emits before an asset file starts uploading. Emits the `name` of the file.
 * `upload-progress` - `{name, progress}` - Emits while a file is uploading. Emits the `name` of the file, and a `progress` object from [`progress-stream`](https://github.com/freeall/progress-stream).
 * `uploaded-asset` - `{name}` - Emits after an asset file is successfully uploaded. Emits the `name` of the file.
+* `duplicated-asset` - `{name}` - Emits after found a duplicated asset file. Emits the `name` of the file.
+* `duplicated-asset-deleted` - `{name}` - Emits after delete a duplicated asset file. Emits the `name` of the file.
 
 ### Usage with Gulp
 
