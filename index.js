@@ -144,13 +144,14 @@ PublishRelease.prototype.publish = function publish () {
             'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
           }
         }, function (err, res, body) {
+          if (err) return callback(err)
           const bodyJson = JSON.parse(body)
-          if (res.statusCode === 422 && bodyJson.errors && bodyJson.errors[0].code === "already_exists") {
+          if (res.statusCode === 422 && bodyJson.errors && bodyJson.errors[0].code === 'already_exists') {
             self.emit('duplicated-asset', fileName)
 
             obj.createRelease.assets.forEach((el) => {
               if (fileName === el.name) {
-                const deleteAssetUri = obj.createRelease.url.split('/').slice(0,-1).join('/') + '/assets/' + el.id
+                const deleteAssetUri = obj.createRelease.url.split('/').slice(0, -1).join('/') + '/assets/' + el.id
 
                 request({
                   method: 'DELETE',
