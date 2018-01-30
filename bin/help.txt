@@ -19,10 +19,10 @@ Options:
                                   Defaults to the name field in the
                                   package.json, plus the git tag.
 
-  --notes [notes]                 Notes to add to release.
-                                  Defaults to opening up the $EDITOR.
+  --notes [notes]                 Notes to add to release, written in Markdown.
+                                  Defaults to opening the $EDITOR.
 
-  --template [path to template]   Template file to open for editing notes.
+  --template [path to template]   Markdown file to open for editing notes.
                                   Will open the template in $EDITOR.
 
   --draft                         Pass this flag to set the release as a draft.
@@ -30,11 +30,16 @@ Options:
   --prerelease                    Pass this flag to set the release as a
                                   prerelease.
 
-  --reuseRelease                  Pass this flag if you don't want the plugin
-                                  to create a new release if one already exists
-                                  for the given tag.
+  --reuseRelease                  Pass this flag if you don't want the plugin to create a new release if one already
+                                  exists for the given tag.
 
-  --skipAssetChecks               Don't check if assets exist or not. False by default.
+  --reuseDraftOnly                Pass this flag if you only want to reuse a release if it's a draft. It prevents
+                                  you from editing already published releases.
+
+  --skipAssetsCheck              Don't check if assets exist or not. False by default.
+
+  --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
+                                  name. False by default.
 
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip

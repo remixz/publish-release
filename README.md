@@ -60,7 +60,7 @@ Options:
   --reuseDraftOnly                Pass this flag if you only want to reuse a release if it's a draft. It prevents
                                   you from editing already published releases.
 
-  --skipAssetChecks               Don't check if assets exist or not. False by default.
+  --skipAssetsCheck              Don't check if assets exist or not. False by default.
 
   --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
                                   name. False by default.
