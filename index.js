@@ -131,9 +131,9 @@ PublishRelease.prototype.publish = function publish () {
         var fileName = path.basename(asset)
         var uploadUri = obj.createRelease.upload_url.split('{')[0] + '?name=' + fileName
 
-        requestUploadAssets()
+        requestUploadAsset()
 
-        function requestUploadAssets () {
+        function requestUploadAsset () {
           self.emit('upload-asset', fileName)
 
           var stat = fs.statSync(asset)
@@ -169,7 +169,7 @@ PublishRelease.prototype.publish = function publish () {
                     if (err) return callback(err)
 
                     self.emit('duplicated-asset-deleted', fileName)
-                    callback()
+                    requestUploadAsset()
                   })
                 }
               })
