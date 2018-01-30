@@ -62,6 +62,9 @@ Options:
 
   --skipAssetChecks               Don't check if assets exist or not. False by default.
 
+  --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
+                                  name. False by default.
+
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
 
@@ -93,6 +96,7 @@ publishRelease({
   reuseRelease: true,
   reuseDraftOnly: true,
   skipAssetsCheck: false,
+  skipDuplicatedAssets: false,
   assets: ['/absolute/path/to/file'],
   apiUrl: 'https://myGHEserver/api/v3',
   target_commitish: 'master'
