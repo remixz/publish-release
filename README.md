@@ -92,6 +92,7 @@ publishRelease({
   prerelease: false,
   reuseRelease: true,
   reuseDraftOnly: true,
+  skipAssetsCheck: false,
   assets: ['/absolute/path/to/file'],
   apiUrl: 'https://myGHEserver/api/v3',
   target_commitish: 'master'
