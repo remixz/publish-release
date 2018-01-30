@@ -130,65 +130,68 @@ PublishRelease.prototype.publish = function publish () {
       async.eachSeries(opts.assets, function (asset, callback) {
         var fileName = path.basename(asset)
         var uploadUri = obj.createRelease.upload_url.split('{')[0] + '?name=' + fileName
-        self.emit('upload-asset', fileName)
 
-        var stat = fs.statSync(asset)
-        var rd = fs.createReadStream(asset)
-        var us = request({
-          method: 'POST',
-          uri: uploadUri,
-          headers: {
-            'Authorization': 'token ' + opts.token,
-            'Content-Type': mime.lookup(fileName),
-            'Content-Length': stat.size,
-            'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
-          }
-        }, function (err, res, body) {
-          if (err) return callback(err)
-          const bodyJson = JSON.parse(body)
-          if (res.statusCode === 422 && bodyJson.errors && bodyJson.errors[0].code === 'already_exists') {
-            self.emit('duplicated-asset', fileName)
+        requestUploadAssets()
 
-            obj.createRelease.assets.forEach((el) => {
-              if (fileName === el.name) {
-                const deleteAssetUri = obj.createRelease.url.split('/').slice(0, -1).join('/') + '/assets/' + el.id
+        function requestUploadAssets () {
+          self.emit('upload-asset', fileName)
 
-                request({
-                  method: 'DELETE',
-                  uri: deleteAssetUri,
-                  headers: {
-                    'Authorization': 'token ' + opts.token,
-                    'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
-                  }
-                }, function (err, res, body) {
-                  if (err) return callback(err)
-                  self.emit('duplicated-asset-deleted', fileName)
-                })
-              }
-            })
-          }
-        })
+          var stat = fs.statSync(asset)
+          var rd = fs.createReadStream(asset)
+          var us = request({
+            method: 'POST',
+            uri: uploadUri,
+            headers: {
+              'Authorization': 'token ' + opts.token,
+              'Content-Type': mime.lookup(fileName),
+              'Content-Length': stat.size,
+              'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+            }
+          }, function (err, res, body) {
+            if (err) return callback(err)
 
-        var prog = progress({
-            length: stat.size,
-            time: 100
-        }, function (p) {
-          self.emit('upload-progress', fileName, p)
-        })
+            const bodyJson = JSON.parse(body)
+            if (res.statusCode === 422 && bodyJson.errors && bodyJson.errors[0].code === 'already_exists') {
+              self.emit('duplicated-asset', fileName)
 
-        rd.on('error', function (err) {
-          return callback(err)  // will be handled by asyncAutoCallback
-        })
-        us.on('error', function (err) {
-          return callback(err)  // will be handled by asyncAutoCallback
-        })
+              async.eachSeries(obj.createRelease.assets, function (el) {
+                if (fileName === el.name) {
+                  const deleteAssetUri = obj.createRelease.url.split('/').slice(0, -1).join('/') + '/assets/' + el.id
 
-        us.on('end', function () {
-          self.emit('uploaded-asset', fileName)
-          callback()
-        })
+                  request({
+                    method: 'DELETE',
+                    uri: deleteAssetUri,
+                    headers: {
+                      'Authorization': 'token ' + opts.token,
+                      'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+                    }
+                  }, function (err, res, body) {
+                    if (err) return callback(err)
 
-        rd.pipe(prog).pipe(us)
+                    self.emit('duplicated-asset-deleted', fileName)
+                    callback()
+                  })
+                }
+              })
+            } else {
+              self.emit('uploaded-asset', fileName)
+              callback()
+            }
+          })
+
+          var prog = progress({
+              length: stat.size,
+              time: 100
+          }, function (p) {
+            self.emit('upload-progress', fileName, p)
+          })
+
+          rd.on('error', function (err) {
+            return callback(err)  // will be handled by asyncAutoCallback
+          })
+
+          rd.pipe(prog).pipe(us)
+        }
       }, function (err) {
         return callback(err) // will be handled by asyncAutoCallback
       })
