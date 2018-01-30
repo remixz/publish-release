@@ -60,7 +60,10 @@ Options:
   --reuseDraftOnly                Pass this flag if you only want to reuse a release if it's a draft. It prevents
                                   you from editing already published releases.
 
-  --skipAssetChecks               Don't check if assets exist or not. False by default.
+  --skipAssetsCheck               Don't check if assets exist or not. False by default.
+
+  --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
+                                  name. False by default.
 
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
@@ -92,6 +95,8 @@ publishRelease({
   prerelease: false,
   reuseRelease: true,
   reuseDraftOnly: true,
+  skipAssetsCheck: false,
+  skipDuplicatedAssets: false,
   assets: ['/absolute/path/to/file'],
   apiUrl: 'https://myGHEserver/api/v3',
   target_commitish: 'master'
@@ -108,6 +113,8 @@ publishRelease({
 * `upload-asset` - `{name}` - Emits before an asset file starts uploading. Emits the `name` of the file.
 * `upload-progress` - `{name, progress}` - Emits while a file is uploading. Emits the `name` of the file, and a `progress` object from [`progress-stream`](https://github.com/freeall/progress-stream).
 * `uploaded-asset` - `{name}` - Emits after an asset file is successfully uploaded. Emits the `name` of the file.
+* `duplicated-asset` - `{name}` - Emits after found a duplicated asset file. Emits the `name` of the file.
+* `duplicated-asset-deleted` - `{name}` - Emits after delete a duplicated asset file. Emits the `name` of the file.
 
 ### Usage with Gulp
 
