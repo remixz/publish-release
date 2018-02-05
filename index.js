@@ -177,6 +177,8 @@ PublishRelease.prototype.publish = function publish () {
                     callback()
                   }
                 })
+              } else {
+                callback()
               }
             } else {
               self.emit('uploaded-asset', fileName)
