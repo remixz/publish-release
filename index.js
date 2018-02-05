@@ -106,7 +106,7 @@ PublishRelease.prototype.publish = function publish () {
           }
         }, function (err, res, body) {
           if (err) return callback(err) // will be handled by asyncAutoCallback
-
+          
           var statusOk = res.statusCode >= 200 && res.statusCode < 300
           var bodyOk = body[0] && body[0].tag_name === opts.tag
           var canReuse = !opts.reuseDraftOnly || (body[0] && body[0].draft)
@@ -155,7 +155,7 @@ PublishRelease.prototype.publish = function publish () {
               self.emit('duplicated-asset', fileName)
 
               if (!opts.skipDuplicatedAssets) {
-                async.eachSeries(obj.createRelease.assets, function (el) {
+                async.eachSeries(obj.createRelease.assets, function (el, callback) {
                   if (fileName === el.name) {
                     const deleteAssetUri = obj.createRelease.url.split('/').slice(0, -1).join('/') + '/assets/' + el.id
 
@@ -171,7 +171,10 @@ PublishRelease.prototype.publish = function publish () {
 
                       self.emit('duplicated-asset-deleted', fileName)
                       requestUploadAsset()
+                      callback()
                     })
+                  } else {
+                    callback()
                   }
                 })
               }
