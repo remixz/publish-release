@@ -106,7 +106,7 @@ PublishRelease.prototype.publish = function publish () {
           }
         }, function (err, res, body) {
           if (err) return callback(err) // will be handled by asyncAutoCallback
-          
+
           var statusOk = res.statusCode >= 200 && res.statusCode < 300
           var bodyOk = body[0] && body[0].tag_name === opts.tag
           var canReuse = !opts.reuseDraftOnly || (body[0] && body[0].draft)
