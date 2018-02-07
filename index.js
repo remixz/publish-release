@@ -155,7 +155,7 @@ PublishRelease.prototype.publish = function publish () {
               self.emit('duplicated-asset', fileName)
 
               if (!opts.skipDuplicatedAssets) {
-                async.eachSeries(obj.createRelease.assets, function (el) {
+                async.eachSeries(obj.createRelease.assets, function (el, callback) {
                   if (fileName === el.name) {
                     const deleteAssetUri = obj.createRelease.url.split('/').slice(0, -1).join('/') + '/assets/' + el.id
 
@@ -171,9 +171,14 @@ PublishRelease.prototype.publish = function publish () {
 
                       self.emit('duplicated-asset-deleted', fileName)
                       requestUploadAsset()
+                      callback()
                     })
+                  } else {
+                    callback()
                   }
                 })
+              } else {
+                callback()
               }
             } else {
               self.emit('uploaded-asset', fileName)

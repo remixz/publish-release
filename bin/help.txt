@@ -34,7 +34,7 @@ Options:
                                   to create a new release if one already exists
                                   for the given tag.
 
-  --skipAssetCheck                Don't check if assets exist or not. False by default.
+  --skipAssetsCheck               Don't check if assets exist or not. False by default.
 
   --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
                                   name. False by default.
