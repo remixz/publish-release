@@ -39,6 +39,12 @@ Options:
   --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
                                   name. False by default.
 
+  --editRelease                   Pass this flag if you want to edit release name, notes, type and target_commitish.
+                                  It will need reuseRelease or/and reuseDraftOnly true to edit the release.
+
+  --deleteEmptyTag                Pass this flag if you want to delete an empty tag after editing it. Usually happens
+                                  when you edit from `prerelease or release` to `draft`.
+
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
 
