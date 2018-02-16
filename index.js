@@ -183,6 +183,7 @@ PublishRelease.prototype.publish = function publish () {
     }],
 
     deleteEmptyTag: ['createRelease', 'editRelease', function deleteEmptyTag (callback, obj) {
+      if (!obj.editRelease) return callback()
       /**
        * Compare if it's going from release/prerelease to tag
        * to delete empty unused tag, checking if it's now draft and was not draft
