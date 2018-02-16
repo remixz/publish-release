@@ -125,6 +125,7 @@ PublishRelease.prototype.publish = function publish () {
 
           if (statusOk && bodyOk && canReuse) {
             self.emit('reuse-release')
+            bodyReturn.allowReuse = true // allow to editRelease
             callback(null, bodyReturn)
           } else {
             requestCreateRelease()
@@ -135,7 +136,53 @@ PublishRelease.prototype.publish = function publish () {
       }
     },
 
-    uploadAssets: ['createRelease', function uploadAssets (callback, obj) {
+    editRelease: ['createRelease', function editRelease (callback, obj) {
+      if (obj.createRelease.errors || !obj.createRelease.url) return callback()
+
+      if (opts.editRelease && obj.createRelease.allowReuse) {
+        self.emit('edit-release', obj.createRelease)
+        const editUri = obj.createRelease.url
+
+        const reqDetails = {
+          uri: editUri,
+          method: 'PATCH',
+          json: true,
+          body: {
+            tag_name: opts.tag,
+            target_commitish: opts.target_commitish,
+            name: opts.name,
+            body: opts.notes,
+            draft: !!opts.draft,
+            prerelease: !!opts.prerelease
+          },
+          headers: {
+            'Authorization': 'token ' + opts.token,
+            'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+          }
+        }
+        request(reqDetails, function (err, res, body) {
+          if (err) {
+            // handle a real error, eg network fail
+            // will be handled by asyncAutoCallback
+            return callback(err)
+          }
+          var errorStatus = res.statusCode >= 400 && res.statusCode < 600
+          if (errorStatus) {
+            // handle an http error status
+            // will be handled by asyncAutoCallback
+            var e = new Error('Error status: ' + res.statusCode + '  response body:' + JSON.stringify(body) + '\n request details:' + JSON.stringify(reqDetails, null, 2))
+            return callback(e)
+          }
+
+          self.emit('edited-release', body)
+          callback(null, body)
+        })
+      } else {
+        callback()
+      }
+    }],
+
+    uploadAssets: ['createRelease', 'editRelease', function uploadAssets (callback, obj) {
       if (!opts.assets || opts.assets.length === 0) return callback()
       if (obj.createRelease.errors || !obj.createRelease.upload_url) return callback(obj.createRelease)
 
