@@ -96,6 +96,11 @@ PublishRelease.prototype.publish = function publish () {
       }
 
       if (opts.reuseRelease) {
+        /**
+         * https://github.com/remixz/publish-release/issues/31
+         * We don't use "Get a release by tag name" because "tag name" means existing git tag,
+         * but we can draft release and don't create git tag
+         */
         request({
           uri: ghReleaseUri,
           method: 'GET',
@@ -107,13 +112,24 @@ PublishRelease.prototype.publish = function publish () {
         }, function (err, res, body) {
           if (err) return callback(err) // will be handled by asyncAutoCallback
 
+          let bodyReturn = null
+
+          async.eachSeries(body, function (el, callback) {
+            if (el.tag_name === opts.tag) {
+              bodyReturn = el
+              return
+            }
+            callback()
+          })
+
           var statusOk = res.statusCode >= 200 && res.statusCode < 300
-          var bodyOk = body[0] && body[0].tag_name === opts.tag
-          var canReuse = !opts.reuseDraftOnly || (body[0] && body[0].draft)
+          var bodyOk = bodyReturn && bodyReturn.tag_name === opts.tag
+          var canReuse = !opts.reuseDraftOnly || (bodyReturn && bodyReturn.draft)
 
           if (statusOk && bodyOk && canReuse) {
             self.emit('reuse-release')
-            callback(null, body[0])
+            bodyReturn.allowReuse = true // allow to editRelease
+            callback(null, bodyReturn)
           } else {
             requestCreateRelease()
           }
@@ -123,7 +139,93 @@ PublishRelease.prototype.publish = function publish () {
       }
     },
 
-    uploadAssets: ['createRelease', function uploadAssets (callback, obj) {
+    editRelease: ['createRelease', function editRelease (callback, obj) {
+      if (obj.createRelease.errors || !obj.createRelease.url) return callback()
+
+      if (opts.editRelease && obj.createRelease.allowReuse) {
+        self.emit('edit-release', obj.createRelease)
+        const editUri = obj.createRelease.url
+
+        const reqDetails = {
+          uri: editUri,
+          method: 'PATCH',
+          json: true,
+          body: {
+            tag_name: opts.tag,
+            target_commitish: opts.target_commitish,
+            name: opts.name,
+            body: opts.notes,
+            draft: !!opts.draft,
+            prerelease: !!opts.prerelease
+          },
+          headers: {
+            'Authorization': 'token ' + opts.token,
+            'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+          }
+        }
+        request(reqDetails, function (err, res, body) {
+          if (err) {
+            // handle a real error, eg network fail
+            // will be handled by asyncAutoCallback
+            return callback(err)
+          }
+          var errorStatus = res.statusCode >= 400 && res.statusCode < 600
+          if (errorStatus) {
+            // handle an http error status
+            // will be handled by asyncAutoCallback
+            var e = new Error('Error status: ' + res.statusCode + '  response body:' + JSON.stringify(body) + '\n request details:' + JSON.stringify(reqDetails, null, 2))
+            return callback(e)
+          }
+
+          self.emit('edited-release', body)
+          callback(null, body)
+        })
+      } else {
+        callback()
+      }
+    }],
+
+    deleteEmptyTag: ['createRelease', 'editRelease', function deleteEmptyTag (callback, obj) {
+      if (!obj.editRelease) return callback()
+      /**
+       * Compare if it's going from release/prerelease to tag
+       * to delete empty unused tag, checking if it's now draft and was not draft
+       */
+      if (opts.deleteEmptyTag && obj.editRelease.draft && !obj.createRelease.draft) {
+        var deleteTagUri = util.format((opts.apiUrl || DEFAULT_API_ROOT) + '/repos/%s/%s/git/refs/tags/%s', opts.owner, opts.repo, obj.createRelease.tag_name)
+
+        const reqDetails = {
+          uri: deleteTagUri,
+          method: 'DELETE',
+          json: true,
+          headers: {
+            'Authorization': 'token ' + opts.token,
+            'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+          }
+        }
+        request(reqDetails, function (err, res, body) {
+          if (err) {
+            // handle a real error, eg network fail
+            // will be handled by asyncAutoCallback
+            return callback(err)
+          }
+          var errorStatus = res.statusCode >= 400 && res.statusCode < 600
+          if (errorStatus) {
+            // handle an http error status
+            // will be handled by asyncAutoCallback
+            var e = new Error('Error status: ' + res.statusCode + '  response body:' + JSON.stringify(body) + '\n request details:' + JSON.stringify(reqDetails, null, 2))
+            return callback(e)
+          }
+
+          self.emit('deleted-tag-release', obj.createRelease.tag_name)
+          callback(null, body)
+        })
+      } else {
+        callback()
+      }
+    }],
+
+    uploadAssets: ['createRelease', 'editRelease', 'deleteEmptyTag', function uploadAssets (callback, obj) {
       if (!opts.assets || opts.assets.length === 0) return callback()
       if (obj.createRelease.errors || !obj.createRelease.upload_url) return callback(obj.createRelease)
 

@@ -35,6 +35,8 @@ var opts = _.extend({
   reuseRelease: false,
   skipAssetsCheck: false,
   skipDuplicatedAssets: false,
+  editRelease: false,
+  deleteEmptyTag: false,
   assets: []
 }, argv, pkg.publishRelease)
 

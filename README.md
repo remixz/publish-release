@@ -65,6 +65,12 @@ Options:
   --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
                                   name. False by default.
 
+  --editRelease                   Pass this flag if you want to edit release name, notes, type and target_commitish.
+                                  It will need reuseRelease or/and reuseDraftOnly true to edit the release.
+
+  --deleteEmptyTag                Pass this flag if you want to delete an empty tag after editing it. Usually happens
+                                  when you edit from `prerelease or release` to `draft`.
+
   --assets [files]                Comma-separated list of filenames.
                                   Ex: --assets foo.txt,bar.zip
 
@@ -97,6 +103,8 @@ publishRelease({
   reuseDraftOnly: true,
   skipAssetsCheck: false,
   skipDuplicatedAssets: false,
+  editRelease: false,
+  deleteEmptyTag: false,
   assets: ['/absolute/path/to/file'],
   apiUrl: 'https://myGHEserver/api/v3',
   target_commitish: 'master'
@@ -115,6 +123,9 @@ publishRelease({
 * `uploaded-asset` - `{name}` - Emits after an asset file is successfully uploaded. Emits the `name` of the file.
 * `duplicated-asset` - `{name}` - Emits after found a duplicated asset file. Emits the `name` of the file.
 * `duplicated-asset-deleted` - `{name}` - Emits after delete a duplicated asset file. Emits the `name` of the file.
+* `edit-release` - `{object}` Emits when will edit a release. Emits the actual release `object`.
+* `edited-release` - `{object}` Emits after edit a release. Emits the modified `object`.
+* `deleted-tag-release` - `{name}` Emits after editing release from prerelease or release to draft, preventing from leaving an empty tag for a edited release. Emits the deleted tag `name` string.
 
 ### Usage with Gulp
 
