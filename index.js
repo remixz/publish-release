@@ -182,7 +182,46 @@ PublishRelease.prototype.publish = function publish () {
       }
     }],
 
-    uploadAssets: ['createRelease', 'editRelease', function uploadAssets (callback, obj) {
+    deleteEmptyTag: ['createRelease', 'editRelease', function deleteEmptyTag (callback, obj) {
+      /**
+       * Compare if it's going from release/prerelease to tag
+       * to delete empty unused tag, checking if it's now draft and was not draft
+       */
+      if (opts.deleteEmptyTag && obj.editRelease.draft && !obj.createRelease.draft) {
+        var deleteTagUri = util.format((opts.apiUrl || DEFAULT_API_ROOT) + '/repos/%s/%s/git/refs/tags/%s', opts.owner, opts.repo, obj.createRelease.tag_name)
+
+        const reqDetails = {
+          uri: deleteTagUri,
+          method: 'DELETE',
+          json: true,
+          headers: {
+            'Authorization': 'token ' + opts.token,
+            'User-Agent': 'publish-release ' + pkg.version + ' (https://github.com/remixz/publish-release)'
+          }
+        }
+        request(reqDetails, function (err, res, body) {
+          if (err) {
+            // handle a real error, eg network fail
+            // will be handled by asyncAutoCallback
+            return callback(err)
+          }
+          var errorStatus = res.statusCode >= 400 && res.statusCode < 600
+          if (errorStatus) {
+            // handle an http error status
+            // will be handled by asyncAutoCallback
+            var e = new Error('Error status: ' + res.statusCode + '  response body:' + JSON.stringify(body) + '\n request details:' + JSON.stringify(reqDetails, null, 2))
+            return callback(e)
+          }
+
+          self.emit('deleted-tag-release', obj.createRelease.tag_name)
+          callback(null, body)
+        })
+      } else {
+        callback()
+      }
+    }],
+
+    uploadAssets: ['createRelease', 'editRelease', 'deleteEmptyTag', function uploadAssets (callback, obj) {
       if (!opts.assets || opts.assets.length === 0) return callback()
       if (obj.createRelease.errors || !obj.createRelease.upload_url) return callback(obj.createRelease)
 
