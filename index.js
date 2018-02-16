@@ -96,9 +96,9 @@ PublishRelease.prototype.publish = function publish () {
       }
 
       if (opts.reuseRelease) {
-        /** 
+        /**
          * https://github.com/remixz/publish-release/issues/31
-         * We don't use "Get a release by tag name" because "tag name" means existing git tag, 
+         * We don't use "Get a release by tag name" because "tag name" means existing git tag,
          * but we can draft release and don't create git tag
          */
         request({
@@ -113,11 +113,14 @@ PublishRelease.prototype.publish = function publish () {
           if (err) return callback(err) // will be handled by asyncAutoCallback
 
           let bodyReturn = null
-          
+
           async.eachSeries(body, function (el, callback) {
-            if (el.tag_name === opts.tag) return bodyReturn = el
+            if (el.tag_name === opts.tag) {
+              bodyReturn = el
+              return
+            }
             callback()
-          });
+          })
 
           var statusOk = res.statusCode >= 200 && res.statusCode < 300
           var bodyOk = bodyReturn && bodyReturn.tag_name === opts.tag
