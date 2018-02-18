@@ -289,14 +289,14 @@ PublishRelease.prototype.publish = function publish () {
           })
 
           var prog = progress({
-              length: stat.size,
-              time: 100
+            length: stat.size,
+            time: 100
           }, function (p) {
             self.emit('upload-progress', fileName, p)
           })
 
           rd.on('error', function (err) {
-            return callback(err)  // will be handled by asyncAutoCallback
+            return callback(err) // will be handled by asyncAutoCallback
           })
 
           rd.pipe(prog).pipe(us)

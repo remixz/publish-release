@@ -5,7 +5,8 @@
   "main": "index.js",
   "bin": "bin/publish-release",
   "scripts": {
-    "test": "standard"
+    "lint": "eslint index.js tests bin",
+    "test": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,12 @@
     "string-editor": "^0.1.0"
   },
   "devDependencies": {
-    "standard": "^3.3.0"
+    "eslint": "^4.18.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nock": "^9.1.6"
   }
 }

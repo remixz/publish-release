@@ -1,4 +1,4 @@
-import nock from 'nock';
+import nock from 'nock'
 
 /**
  * Retun a `nock` object setup to respond to a github authentication request. Other expectation and responses can be chained.
@@ -8,12 +8,12 @@ import nock from 'nock';
  * @param {String} [githubApiPathPrefix=process.env.GH_PREFIX || process.env.GITHUB_PREFIX || ''] The GitHub Enterprise API prefix.
  * @return {Object} A `nock` object ready to respond to a github authentication request.
  */
-export function authenticate({
+export function authenticate ({
   githubToken = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || 'GH_TOKEN',
   githubUrl = process.env.GH_URL || process.env.GITHUB_URL || 'https://api.github.com',
-  githubApiPathPrefix = process.env.GH_PREFIX || process.env.GITHUB_PREFIX || '',
+  githubApiPathPrefix = process.env.GH_PREFIX || process.env.GITHUB_PREFIX || ''
 } = {}) {
-  return nock(`${githubUrl}/${githubApiPathPrefix}`, {reqheaders: {Authorization: `token ${githubToken}`}});
+  return nock(`${githubUrl}/${githubApiPathPrefix}`, {reqheaders: {Authorization: `token ${githubToken}`}})
 }
 
 /**
@@ -23,13 +23,13 @@ export function authenticate({
  * @param {String} [uploadUrl] The url on which to intercept http requests.
  * @return {Object} A `nock` object ready to respond to a github file upload request.
  */
-export function upload({
+export function upload ({
   githubToken = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || 'GH_TOKEN',
   uploadUrl,
   contentType = 'text/plain',
-  contentLength,
+  contentLength
 } = {}) {
   return nock(uploadUrl, {
-    reqheaders: {Authorization: `token ${githubToken}`, 'content-type': contentType, 'content-length': contentLength},
-  });
+    reqheaders: {Authorization: `token ${githubToken}`, 'content-type': contentType, 'content-length': contentLength}
+  })
 }
