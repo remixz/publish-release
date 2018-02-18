@@ -5,7 +5,7 @@
   "main": "index.js",
   "bin": "bin/publish-release",
   "scripts": {
-    "lint": "eslint index.js tests bin",
+    "lint": "./node_modules/.bin/eslint index.js tests bin",
     "test": "npm run lint"
   },
   "repository": {
