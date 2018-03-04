@@ -9,7 +9,6 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint index.js tests bin",
     "codecov": "codecov -f coverage/coverage-final.json",
-    "prepush": "npm run lint",
     "pretest": "npm run lint",
     "test": "nyc ava -v"
   },
@@ -23,6 +22,11 @@
       "html"
     ],
     "all": true
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run lint"
+    }
   },
   "repository": {
     "type": "git",
@@ -41,6 +45,7 @@
     "async": "^0.9.0",
     "ghauth": "^2.0.0",
     "github-url-to-object": "^1.4.2",
+    "husky": "^0.14.3",
     "inquirer": "^0.8.2",
     "lodash": "^3.6.0",
     "mime": "^1.3.4",
