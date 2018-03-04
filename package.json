@@ -8,8 +8,21 @@
   "license": "MIT",
   "scripts": {
     "lint": "./node_modules/.bin/eslint index.js tests bin",
+    "codecov": "codecov -f coverage/coverage-final.json",
+    "prepush": "npm run lint",
     "pretest": "npm run lint",
-    "test": "npm run lint"
+    "test": "nyc ava -v"
+  },
+  "nyc": {
+    "include": [
+      "index.js"
+    ],
+    "reporter": [
+      "json",
+      "text",
+      "html"
+    ],
+    "all": true
   },
   "repository": {
     "type": "git",
