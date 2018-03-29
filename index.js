@@ -112,7 +112,7 @@ PublishRelease.prototype.publish = function publish () {
         }, function (err, res, body) {
           if (err) return callback(err) // will be handled by asyncAutoCallback
 
-          let bodyReturn = null
+          var bodyReturn = null
 
           async.eachSeries(body, function (el, callback) {
             if (el.tag_name === opts.tag) {
