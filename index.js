@@ -123,14 +123,14 @@ PublishRelease.prototype.publish = function publish () {
           })
 
           var statusOk = res.statusCode >= 200 && res.statusCode < 300
-          var bodyOk = bodyReturn && bodyReturn.tag_name === opts.tag
+          var hasReleaseMatchingTag = bodyReturn && bodyReturn.tag_name === opts.tag
           var canReuse = !opts.reuseDraftOnly || (bodyReturn && bodyReturn.draft)
 
-          if (statusOk && bodyOk && canReuse) {
+          if (statusOk && hasReleaseMatchingTag && canReuse) {
             self.emit('reuse-release')
             bodyReturn.allowReuse = true // allow to editRelease
             callback(null, bodyReturn)
-          } else {
+          } else if (!hasReleaseMatchingTag || hasReleaseMatchingTag && !opts.skipIfPublished) {
             requestCreateRelease()
           }
         })
