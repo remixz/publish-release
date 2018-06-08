@@ -65,6 +65,9 @@ Options:
   --skipDuplicatedAssets          Pass this flag if you don't want the plugin to replace assets with the same
                                   name. False by default.
 
+  --skipIfPublished               Pass this flag if you don't want a new release to be created if a release with
+                                  the same tag has already been published (is not a draft). False by default.
+
   --editRelease                   Pass this flag if you want to edit release name, notes, type and target_commitish.
                                   It will need reuseRelease or/and reuseDraftOnly true to edit the release.
 
@@ -103,6 +106,7 @@ publishRelease({
   reuseDraftOnly: true,
   skipAssetsCheck: false,
   skipDuplicatedAssets: false,
+  skipIfPublished: false,
   editRelease: false,
   deleteEmptyTag: false,
   assets: ['/absolute/path/to/file'],
