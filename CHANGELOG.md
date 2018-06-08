@@ -1,3 +1,21 @@
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/remixz/publish-release/compare/ce3667074704e6194529f77fb3b98910d7a3394a...v1.6.0) (2018-06-08)
+
+
+### Features
+
+* add 'skipIfPublished' argument to CLI and API ([#38](https://github.com/remixz/publish-release/issues/38)) ([a01b25d](https://github.com/remixz/publish-release/commit/a01b25d)), closes [#37](https://github.com/remixz/publish-release/issues/37)
+
+
+<a name="1.5.1"></a>
+# [1.5.1]() (2018-03-29)
+
+
+### Bug Fixes
+
+* Changed let to var - To support node versions less than 6 ([f2d9474](https://github.com/remixz/publish-release/commit/f2d9474e437221879f679b7871d475d2143154dd))
+
+
 <a name="1.5.0"></a>
 # [1.5.0](https://github.com/remixz/publish-release/tree/v1.5.0) (2018-02-19)
 
