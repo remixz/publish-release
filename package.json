@@ -37,6 +37,6 @@
     "string-editor": "^0.1.0"
   },
   "devDependencies": {
-    "standard": "^3.3.0"
+    "standard": "^17.0.0"
   }
 }
